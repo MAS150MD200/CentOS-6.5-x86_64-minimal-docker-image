@@ -36,7 +36,7 @@ To not reinvent the wheel we will use [mkimage-yum.sh](https://github.com/moby/m
         ```sh
         yum clean all
         ```
-  - Sinxe we don't have docker installed on this machine we want to update last 3 lines in mkimage-yum.sh
+  - Since we don't have docker installed on this machine we want to update last 3 lines in mkimage-yum.sh
     ```diff
     diff --git a/contrib/mkimage-yum.sh b/contrib/mkimage-yum.sh
     index 9012804..abb29b6 100755
