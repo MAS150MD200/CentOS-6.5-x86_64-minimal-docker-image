@@ -3,6 +3,7 @@
 ## How this image was done
 Image created using this manual can be found on [dockerhub](https://hub.docker.com/r/roman8422/centos6.5/). 
 All steps were done in VirtualBox [Vagrant](https://www.vagrantup.com/intro/index.html) VM with CentOS 6.5. This centos6.5-minimal image was used https://app.vagrantup.com/RomanV/boxes/centos65.
+
 It also OK to use fresh CentOS 6.5 installation.
 
 ## Steps:
