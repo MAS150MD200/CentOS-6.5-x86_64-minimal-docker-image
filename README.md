@@ -10,12 +10,12 @@ We'll use latest official centos:6 docker image. That image comes with repositor
     ```
 - Install packages, configure yum, clone moby project:
     ```
-    yum -y install git yum-utils                 	# install packages
-    yum-config-manager --disable \*  				# disable all repos
-    yum-config-manager --enable C6.5*				# enable centos6.5 repos
+    yum -y install git yum-utils                    # install packages
+    yum-config-manager --disable \*                 # disable all repos
+    yum-config-manager --enable C6.5*               # enable centos6.5 repos
     
     cd /root \
-    && git clone https://github.com/moby/moby/ \	# clone project moby
+    && git clone https://github.com/moby/moby/ \    # clone project moby
     && cd /root/moby/contrib 
     ```
 
