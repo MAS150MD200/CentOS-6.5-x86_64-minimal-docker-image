@@ -1,70 +1,69 @@
 # CentOS 6.5 x86_64 minimal docker image
 
-## How this image was done
-Image created using this manual can be found on [dockerhub](https://hub.docker.com/r/roman8422/centos6.5/). 
-All steps were done in VirtualBox [Vagrant](https://www.vagrantup.com/intro/index.html) VM with CentOS 6.5. This centos6.5-minimal image was used https://app.vagrantup.com/RomanV/boxes/centos65.
+## Steps to create:
+To create a CentOS 6.5 image we will use [officially recommended](https://docs.docker.com/engine/userguide/eng-image/baseimages/) tool mkimage-yum.sh from Moby project.
+We'll use latest official centos:6 docker image. That image comes with repositories for all previous releases disabled by default
 
-It also OK to use fresh CentOS 6.5 installation.
-
-## Steps:
-  - ssh into new VM
-  - install git 
-    ```sh
-    yum -y install git
+- Start our dev container
     ```
-To not reinvent the wheel we will use [mkimage-yum.sh](https://github.com/moby/moby/blob/master/contrib/mkimage-yum.sh) to create image.
-  - clone repository:
-    ```sh
+    docker container run -it --name dev --rm centos:6
+    ```
+- Install packages, configure yum, clone moby project:
+    ```
+    yum -y install git yum-utils                 	# install packages
+    yum-config-manager --disable \*  				# disable all repos
+    yum-config-manager --enable C6.5*				# enable centos6.5 repos
+    
     cd /root \
-    && git clone https://github.com/moby/moby/ \
+    && git clone https://github.com/moby/moby/ \	# clone project moby
     && cd /root/moby/contrib 
     ```
-  - update yum repo urls:
-    - comment out mirrorlist stanzas:
-        ```sh 
-        sed -i 's/^\(mirrorlist\)/#\1/' /etc/yum.repos.d/CentOS-Base.repo
-        ```
-    - Enable baseurl stanzas:
-        ```sh
-        sed -i 's/^#\(baseurl\)/\1/' /etc/yum.repos.d/CentOS-Base.repo 
-        ```
-    - Switch to CentOS 6.5 archive:
-        ```sh
-        sed -i 's?mirror.centos.org/centos/$releasever?vault.centos.org/6.5?' /etc/yum.repos.d/CentOS-Base.repo
-        ```
-     - Remove all cached data:
-        ```sh
-        yum clean all
-        ```
-  - Since we don't have docker installed on this machine we want to update last 3 lines in mkimage-yum.sh
+
+- Since we don't want to run this image on our dev container, we need to update last 3 lines in mkimage-yum.sh as shown below:
     ```diff
     diff --git a/contrib/mkimage-yum.sh b/contrib/mkimage-yum.sh
-    index 9012804..abb29b6 100755
+    index 9012804..61a0779 100755
     --- a/contrib/mkimage-yum.sh
     +++ b/contrib/mkimage-yum.sh
-    @@ -129,8 +129,4 @@ if [ -z "$version" ]; then
+    @@ -129,8 +129,5 @@ if [ -z "$version" ]; then
          version=$name
      fi
      
     -tar --numeric-owner -c -C "$target" . | docker import - $name:$version
-    -
+    +tar --numeric-owner -cf /root/"$name".tar -C "$target" .
+     
     -docker run -i -t --rm $name:$version /bin/bash -c 'echo success'
     -
     -rm -rf "$target"
-    +tar --numeric-owner -czf /root/$name.tar.gz -C "$target" . 
     ```
-  - build new docker image
-    ```sh
-    ./mkimage-yum.sh centos6.5
+
+- To fix [this bug with yum and overlayfs](https://github.com/moby/moby/issues/10180) yum-plugin-ovl package needs to be installed.
+Creating rootfs for our image:
     ```
-  - copy image to your docker machine and import it with
-    ```sh
-    cat centos6.5.tar.gz | sudo docker import - roman8422/centos6.5
+    ./mkimage-yum.sh -p yum-plugin-ovl centos65
     ```
-  - test your new image
-    ```sh
-    docker run -it --rm roman8422/centos6.5 cat /etc/issue
+
+- Now we need to copy archive we created to our host machine and import it to docker. On second terminal run:
+    ```
+    docker cp dev:/root/centos65.tar ./
+    ```
+
+- Create Dockerfile in the same directory with the following content:
+    ```
+    FROM scratch
+    ADD centos65.tar /
+    
+    CMD ["/bin/bash"]
+    ```
+- Build our image:
+    ```
+    docker build .
+    ```
+- The only thing left is to properly tag and verify the image:
+    ```
+    docker tag <IMAGE ID> roman8422/centos6.5
+
+    docker run --rm roman8422/centos6.5 cat /etc/issue
     CentOS release 6.5 (Final)
     Kernel \r on an \m
     ```
-
