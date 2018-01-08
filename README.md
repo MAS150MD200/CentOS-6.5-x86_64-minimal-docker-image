@@ -48,21 +48,13 @@ Creating rootfs for our image:
     docker cp dev:/root/centos65.tar ./
     ```
 
-- Create Dockerfile in the same directory with the following content:
+- Import the contents from a tarball to create a filesystem image:
     ```
-    FROM scratch
-    ADD centos65.tar /
-    
-    CMD ["/bin/bash"]
+    docker import centos65.tar roman8422/centos6.5
     ```
-- Build our image:
-    ```
-    docker build .
-    ```
-- The only thing left is to properly tag and verify the image:
-    ```
-    docker tag <IMAGE ID> roman8422/centos6.5
 
+- The only thing left is to verify the image:
+    ```
     docker run --rm roman8422/centos6.5 cat /etc/issue
     CentOS release 6.5 (Final)
     Kernel \r on an \m
