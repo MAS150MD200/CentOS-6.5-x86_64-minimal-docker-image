@@ -14,9 +14,10 @@ We'll use latest official centos:6 docker image. That image comes with repositor
     yum-config-manager --disable \*                 # disable all repos
     yum-config-manager --enable C6.5*               # enable centos6.5 repos
     
-    cd /root \
-    && git clone https://github.com/moby/moby/ \    # clone project moby
-    && cd /root/moby/contrib 
+    cd /root
+    git clone https://github.com/moby/moby/         # clone project moby
+    cd /root/moby/contrib
+
     ```
 
 - Since we don't want to run this image on our dev container, we need to update last 3 lines in mkimage-yum.sh as shown below:
