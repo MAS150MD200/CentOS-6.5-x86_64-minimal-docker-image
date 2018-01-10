@@ -6,7 +6,7 @@ We'll use latest official centos:6 docker image. That image comes with repositor
 
 - Start our dev container
     ```
-    docker container run -it --name dev --rm centos:6
+    docker container run -it --name dev --rm -v $(pwd):/mnt centos:6
     ```
 - Install packages, configure yum, clone moby project:
     ```
@@ -31,7 +31,7 @@ We'll use latest official centos:6 docker image. That image comes with repositor
      fi
      
     -tar --numeric-owner -c -C "$target" . | docker import - $name:$version
-    +tar --numeric-owner -cf /root/"$name".tar -C "$target" .
+    +tar --numeric-owner -cf /mnt/"$name".tar -C "$target" .
      
     -docker run -i -t --rm $name:$version /bin/bash -c 'echo success'
     -
@@ -44,9 +44,9 @@ Creating rootfs for our image:
     ./mkimage-yum.sh -p yum-plugin-ovl centos65
     ```
 
-- Now we need to copy archive we created to our host machine and import it to docker. On second terminal run:
+- Exit the container, we don't need it anymore (type exit or Ctrl+D)
     ```
-    docker cp dev:/root/centos65.tar ./
+    exit
     ```
 
 - Import the contents from a tarball to create a filesystem image:
